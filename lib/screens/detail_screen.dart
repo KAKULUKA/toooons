@@ -29,13 +29,15 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future initPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    final likeToons = prefs.getStringList('likedToons');
-    if (likeToons == null) {
-      if (likeToons?.contains(widget.id) == true) {
-        isLiked = true;
+    final likeToons = prefs.getStringList('likeToons');
+    if (likeToons != null) {
+      if (likeToons.contains(widget.id) == true) {
+        setState(() {
+          isLiked = true;
+        });
       }
     } else {
-      await prefs.setStringList('likedToons', []);
+      await prefs.setStringList('likeToons', []);
     }
   }
 
@@ -49,7 +51,7 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   onHeartTap() async {
-    final likeToons = prefs.getStringList('likedToons');
+    final likeToons = prefs.getStringList('likeToons');
     if (likeToons != null) {
       if (isLiked) {
         likeToons.remove(widget.id);
@@ -57,6 +59,9 @@ class _DetailScreenState extends State<DetailScreen> {
         likeToons.add(widget.id);
       }
       await prefs.setStringList('likeToons', likeToons);
+      setState(() {
+        isLiked = !isLiked;
+      });
     }
   }
 
@@ -67,9 +72,11 @@ class _DetailScreenState extends State<DetailScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-              onPressed: () {},
-              icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border_outlined))
+            onPressed: onHeartTap,
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border_outlined,
+            ),
+          )
         ],
         centerTitle: true,
         elevation: 2,
